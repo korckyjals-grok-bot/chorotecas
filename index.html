@@ -1,0 +1,96 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sociales: Los Chorotecas</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:"Segoe UI",Arial,sans-serif;background:linear-gradient(160deg,#fff6d6,#d9f2ff);color:#1f2a44;min-height:100vh}
+.wrap{max-width:760px;margin:0 auto;padding:16px}h1{text-align:center;font-size:2rem;margin:10px 0}h2{font-size:1.5rem;margin:8px 0}
+.card{background:#fff;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,.1);margin:14px 0}
+.btn{display:block;width:100%;font-size:1.3rem;padding:16px;margin:8px 0;border:0;border-radius:16px;cursor:pointer;color:#fff;background:#2b8de2;font-weight:700}
+.btn.g{background:#22a35a}.btn.o{background:#f08a24}.btn.r{background:#c7362b}.btn.gray{background:#8a94a8}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row .btn{flex:1;min-width:140px}
+.topics label{display:block;font-size:1.25rem;padding:10px;background:#e8f3ff;border-radius:12px;margin:6px 0;cursor:pointer}
+.topics input{transform:scale(1.5);margin-right:12px}
+.q{font-size:1.45rem;font-weight:700;margin:6px 0 14px}.opt{background:#eef1f6;color:#1f2a44;text-align:left}
+.opt.ok{background:#22a35a;color:#fff}.opt.bad{background:#c7362b;color:#fff}
+.exp{font-size:1.15rem;background:#fff6d6;border-left:6px solid #ffbf00;padding:12px;border-radius:10px;margin-top:10px}
+.stats{display:flex;justify-content:space-between;font-size:1.15rem;font-weight:700;flex-wrap:wrap;gap:8px}
+.tag{display:inline-block;padding:4px 10px;border-radius:10px;background:#ffd9cc;font-size:.95rem;font-weight:700}
+.fc{min-height:200px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:1.4rem;cursor:pointer;background:#e8f3ff}
+.timer{font-size:2rem;text-align:center;font-weight:800;color:#c7362b}.hid{display:none}.msg{font-size:1.3rem;text-align:center;font-weight:700;min-height:1.6em}
+ul{font-size:1.1rem}li{margin:6px 0}
+</style></head><body><div class="wrap">
+<p style="margin:0"><a href="https://korckyjals-grok-bot.github.io/sociales/" style="color:#2b8de2;font-weight:700;text-decoration:none">⬅️ Todos los pueblos</a></p>
+<h1>🌊 Sociales: Los Chorotecas</h1>
+<div id="home" class="card">
+<p style="font-size:1.2rem;text-align:center">¡Hola, amiguito! ¡Aprende sobre los chorotecas jugando!</p>
+<button class="btn g" onclick="showStudy()">📖 Estudiar</button>
+<div class="topics" id="topics">
+<label><input type="checkbox" value="ori" checked>🗺️ Origen y territorio</label>
+<label><input type="checkbox" value="vid" checked>🌽 Vida y cultura</label>
+<label><input type="checkbox" value="con" checked>🛡️ Conquista y legado</label>
+</div>
+<div class="row"><button class="btn" onclick="startPractice()">✏️ Practicar</button><button class="btn o" onclick="startChallenge()">⏱️ Desafío 60 s</button></div>
+<p style="text-align:center;font-size:1.1rem">🏆 Récord del desafío: <b id="best">0</b></p>
+</div>
+<div id="study" class="card hid">
+<h2 id="stTitle"></h2><div class="row" id="stTabs"></div>
+<div id="fc" class="card fc" onclick="flip()"></div>
+<p style="text-align:center">Toca la tarjeta para ver la respuesta</p>
+<div class="row"><button class="btn gray" onclick="moveFc(-1)">⬅️ Anterior</button><button class="btn" onclick="moveFc(1)">Siguiente ➡️</button></div>
+<button class="btn r" onclick="home()">🏠 Inicio</button>
+</div>
+<div id="play" class="card hid">
+<div class="stats"><span>✅ <span id="sc">0</span></span><span>🔥 Racha: <span id="st">0</span></span><span id="cnt"></span></div>
+<div id="tm" class="timer hid"></div>
+<p><span class="tag" id="tg"></span></p>
+<div class="q" id="qt"></div><div id="opts"></div>
+<div id="msg" class="msg"></div><div id="exp" class="exp hid"></div>
+<button class="btn g hid" id="nx" onclick="next()">Siguiente ➡️</button>
+<button class="btn r" onclick="finish()">Terminar</button>
+</div>
+<div id="sum" class="card hid"><h2 id="sumT"></h2><p id="sumP" style="font-size:1.2rem"></p><div id="sumL"></div>
+<button class="btn o hid" id="rep" onclick="repeatErrors()">🔁 Repasar errores</button>
+<button class="btn" onclick="home()">🏠 Inicio</button></div>
+</div>
+<script>
+const TN={"ori": "Origen y territorio", "vid": "Vida y cultura", "con": "Conquista y legado"};
+const Q=[{"c": "ori", "t": "m", "q": "¿Con qué otro nombre se conoce a los chorotecas?", "o": ["Chorotegas o mangues", "Pipiles", "Kakawiras", "Mayas"], "e": "También se les llama chorotegas, y a su idioma, mangue."}, {"c": "ori", "t": "m", "q": "¿En qué parte de El Salvador vivían los chorotecas?", "o": ["En el extremo oriente, cerca del golfo de Fonseca", "En el occidente, en Ahuachapán", "En Chalatenango", "En San Salvador"], "e": "Vivían en el extremo oriental, junto al golfo de Fonseca."}, {"c": "ori", "t": "m", "q": "¿Qué departamento actual de El Salvador está junto al golfo de Fonseca?", "o": ["La Unión", "Ahuachapán", "Santa Ana", "Chalatenango"], "e": "La Unión está junto al golfo de Fonseca."}, {"c": "ori", "t": "m", "q": "¿En qué otros países vivían muchos chorotegas?", "o": ["Nicaragua y Costa Rica (y el sur de Honduras)", "Argentina y Chile", "España y Francia", "Estados Unidos y Canadá"], "e": "Su mayor población estaba en el Pacífico de Nicaragua y en Nicoya (Costa Rica)."}, {"c": "ori", "t": "m", "q": "Según muchos historiadores, ¿de dónde venían originalmente los chorotegas?", "o": ["Del sur de México (zona de Chiapas)", "De Europa", "De África", "De Perú"], "e": "Se cree que migraron desde el sur de México hace muchos siglos. Es una teoría, no hay certeza total."}, {"c": "ori", "t": "m", "q": "¿Cómo se llamaba el idioma de los chorotegas?", "o": ["Mangue", "Náhuat", "Poqomam", "Potón"], "e": "Su lengua se llamaba mangue o chorotega."}, {"c": "ori", "t": "m", "q": "¿A qué familia de lenguas pertenece el mangue?", "o": ["Otomangue (de México)", "Maya", "Lenca", "Misumalpa"], "e": "El mangue es de la familia otomangue, como lenguas del sur de México."}, {"c": "ori", "t": "v", "q": "El idioma mangue todavía se habla hoy en El Salvador.", "a": false, "e": "Falso. El mangue es una lengua extinta."}, {"c": "ori", "t": "m", "q": "¿Qué península de Costa Rica fue un gran centro chorotega?", "o": ["Nicoya", "Yucatán", "Florida", "Baja California"], "e": "La península de Nicoya, en Guanacaste, era territorio chorotega."}, {"c": "ori", "t": "v", "q": "Los chorotecas eran el pueblo más numeroso de El Salvador.", "a": false, "e": "Falso. En El Salvador eran un grupo pequeño en el oriente."}, {"c": "ori", "t": "m", "q": "¿Qué pueblo vivía al lado de los chorotecas en el oriente salvadoreño?", "o": ["Los lencas", "Los pocomames", "Los aztecas", "Los incas"], "e": "Los lencas eran sus vecinos en el oriente."}, {"c": "ori", "t": "m", "q": "¿Qué lugares del golfo de Fonseca se mencionan como zona chorotega?", "o": ["Nacaome y Nicomongoya", "Chalchuapa y Ahuachapán", "Tejutla y Citalá", "Izalco y Nahuizalco"], "e": "Los documentos mencionan lugares como Nicomongoya y Nacaome (hoy en Honduras)."}, {"c": "ori", "t": "m", "q": "¿Qué es un golfo?", "o": ["Una parte del mar que entra en la tierra", "Una montaña muy alta", "Un desierto", "Un volcán"], "e": "El golfo de Fonseca lo comparten El Salvador, Honduras y Nicaragua."}, {"c": "ori", "t": "v", "q": "El golfo de Fonseca lo comparten El Salvador, Honduras y Nicaragua.", "a": true, "e": "¡Cierto! Tres países tienen costa en el golfo."}, {"c": "vid", "t": "m", "q": "¿Cuál era el alimento principal de los chorotegas?", "o": ["El maíz", "El arroz", "El trigo", "La papa"], "e": "El maíz era la base de su alimentación."}, {"c": "vid", "t": "m", "q": "Por vivir junto al mar, ¿qué otros alimentos aprovechaban?", "o": ["Pescado, conchas y mariscos", "Carne de oso polar", "Pingüinos", "Manzanas"], "e": "Junto al golfo pescaban y recolectaban conchas."}, {"c": "vid", "t": "m", "q": "¿Qué semilla usaban como moneda en Centroamérica?", "o": ["El cacao", "El maíz pop", "El café", "El girasol"], "e": "El cacao servía como moneda."}, {"c": "vid", "t": "m", "q": "¿Por qué es famosa la cerámica chorotega?", "o": ["Por sus vasijas pintadas de colores, con figuras de animales", "Porque era de plástico", "Porque era transparente", "Porque era de metal"], "e": "La cerámica policromada chorotega (de varios colores) es muy famosa."}, {"c": "vid", "t": "v", "q": "Hoy en Costa Rica y Nicaragua todavía hay artesanos que hacen cerámica de tradición chorotega.", "a": true, "e": "¡Cierto! Por ejemplo en Guaitil (Costa Rica) y San Juan de Oriente (Nicaragua)."}, {"c": "vid", "t": "m", "q": "¿Qué animales aparecen mucho en su arte?", "o": ["Jaguares, serpientes y aves", "Elefantes y jirafas", "Canguros", "Pingüinos"], "e": "Pintaban animales de su entorno como el jaguar."}, {"c": "vid", "t": "m", "q": "¿Cómo se organizaban los chorotegas de Nicaragua, según los cronistas?", "o": ["En pueblos con jefes y consejos de ancianos", "Sin ninguna organización", "Con un emperador europeo", "Con presidentes elegidos"], "e": "Los cronistas españoles describen jefes y consejos de ancianos."}, {"c": "vid", "t": "m", "q": "¿Cómo eran sus creencias religiosas?", "o": ["Creían en varios dioses de la naturaleza", "No creían en nada", "Eran budistas", "Eran musulmanes"], "e": "Eran politeístas, como otros pueblos mesoamericanos."}, {"c": "vid", "t": "m", "q": "¿Qué celebraban con fiestas y danzas?", "o": ["Las cosechas y los ciclos de la naturaleza", "El año nuevo chino", "La Navidad", "Los partidos de fútbol"], "e": "Sus fiestas estaban ligadas a la agricultura."}, {"c": "vid", "t": "m", "q": "¿Con qué tejían su ropa?", "o": ["Algodón", "Lana de oveja", "Seda", "Poliéster"], "e": "Usaban algodón."}, {"c": "vid", "t": "m", "q": "¿Para qué usaban las canoas?", "o": ["Para pescar y moverse por el golfo", "Para volar", "Para cocinar", "Para dormir en los árboles"], "e": "Las canoas eran útiles en el mar y los ríos."}, {"c": "vid", "t": "v", "q": "Los chorotegas practicaban la agricultura y también la pesca.", "a": true, "e": "¡Cierto! Aprovechaban tierra y mar."}, {"c": "vid", "t": "m", "q": "¿Qué hacían con las conchas del mar?", "o": ["Comían los mariscos y hacían adornos", "Las usaban como teléfono", "Las tiraban sin usar", "Construían rascacielos"], "e": "Además de comer, hacían collares y adornos."}, {"c": "con", "t": "m", "q": "¿Quiénes llegaron en el siglo XVI y conquistaron a los chorotegas?", "o": ["Los españoles", "Los vikingos", "Los romanos", "Los chinos"], "e": "Los españoles conquistaron la región en el siglo XVI."}, {"c": "con", "t": "m", "q": "¿En qué siglo llegaron los españoles a Centroamérica?", "o": ["Siglo XVI (años 1500)", "Siglo X", "Siglo XX", "Siglo III"], "e": "Llegaron en los años 1500."}, {"c": "con", "t": "v", "q": "Después de la conquista, el idioma mangue desapareció poco a poco.", "a": true, "e": "¡Cierto! Hoy es una lengua extinta."}, {"c": "con", "t": "m", "q": "¿Qué provincia de Costa Rica conserva mucha herencia chorotega?", "o": ["Guanacaste", "Limón", "San José", "Cartago"], "e": "Guanacaste, con la península de Nicoya."}, {"c": "con", "t": "m", "q": "¿Cómo se llama el pueblo de Costa Rica famoso por su cerámica chorotega?", "o": ["Guaitil", "Cancún", "Antigua", "Copán"], "e": "Guaitil, en Guanacaste."}, {"c": "con", "t": "m", "q": "¿Qué alimento típico de Centroamérica es herencia indígena?", "o": ["Las tortillas de maíz", "El croissant", "La paella", "El sushi"], "e": "El maíz es herencia de los pueblos originarios."}, {"c": "con", "t": "m", "q": "¿Qué causó muchas muertes indígenas tras la conquista?", "o": ["Enfermedades traídas de Europa", "El frío", "Los meteoritos", "Los dinosaurios"], "e": "Enfermedades como la viruela."}, {"c": "con", "t": "v", "q": "Hoy hay comunidades en Nicaragua que se identifican como chorotegas.", "a": true, "e": "¡Cierto! Por ejemplo en Masaya y Matagalpa hay comunidades que reivindican esa herencia."}, {"c": "con", "t": "m", "q": "¿Por qué sabemos poco de los chorotecas de El Salvador?", "o": ["Eran pocos y su idioma desapareció hace mucho", "Porque nunca existieron", "Porque vivían en la Luna", "Porque escribían en inglés"], "e": "Eran un grupo pequeño y quedan pocos registros."}, {"c": "con", "t": "m", "q": "¿Qué estudian los arqueólogos?", "o": ["Los restos que dejaron los pueblos antiguos", "Las estrellas solamente", "Los motores", "Las plantas de la casa"], "e": "Gracias a ellos conocemos la cerámica chorotega."}, {"c": "con", "t": "v", "q": "Valorar a los pueblos originarios es parte de conocer nuestra identidad.", "a": true, "e": "¡Cierto! Su historia es parte de la nuestra."}, {"c": "ori", "t": "m", "q": "¿Cómo se llama hoy una región de Nicaragua con nombre chorotega?", "o": ["Mangue, en la zona de Masaya y Granada", "Yucatán", "Patagonia", "Amazonas"], "e": "La zona de Masaya y Granada fue llamada «Mangue» por los españoles."}, {"c": "vid", "t": "m", "q": "¿Qué fruto usaban para hacer guacales y recipientes?", "o": ["El morro o jícaro", "La sandía", "La piña", "El coco de plástico"], "e": "El morro (jícaro) se usaba para hacer guacales."}, {"c": "con", "t": "m", "q": "¿Qué pueblo de Nicaragua es famoso por su cerámica de tradición indígena?", "o": ["San Juan de Oriente", "Managua centro", "Bluefields", "León Viejo"], "e": "San Juan de Oriente es un pueblo de alfareros."}];
+const CARDS={"ori": [["¿Quiénes eran los chorotecas?", "Un pueblo que vivió en el extremo oriente de El Salvador, junto al golfo de Fonseca."], ["Otros nombres", "Chorotegas o mangues."], ["Origen", "Según muchos historiadores, migraron desde el sur de México (Chiapas) hace siglos."], ["Idioma", "El mangue, de la familia otomangue. Hoy está extinto."], ["Dónde más vivían", "En el Pacífico de Nicaragua y en Nicoya, Costa Rica."], ["Vecinos", "Los lencas, en el oriente salvadoreño."]], "vid": [["Alimentación", "Maíz, frijol, pescado, conchas y mariscos."], ["Cerámica", "Vasijas de varios colores con jaguares, serpientes y aves."], ["Religión", "Varios dioses de la naturaleza; fiestas de cosecha."], ["Organización", "Jefes y consejos de ancianos, según los cronistas."], ["El mar", "Usaban canoas para pescar y moverse por el golfo."], ["Guacales", "Recipientes hechos con el fruto del morro o jícaro."]], "con": [["La conquista", "Los españoles conquistaron la región en el siglo XVI."], ["Su idioma", "El mangue desapareció; es una lengua extinta."], ["Herencia hoy", "Cerámica de Guaitil (Costa Rica) y San Juan de Oriente (Nicaragua)."], ["En El Salvador", "Eran un grupo pequeño; por eso hay pocos registros."]]};
+Q.forEach((q,i)=>q.id=i);
+const $=id=>document.getElementById(id);
+let pool=[],cur=null,score=0,streak=0,done=0,missed={},answered=false,chal=false,timer=null,left=0,weight={},last=-1;
+$("best").textContent=localStorage.getItem("chorotecas_best")||0;
+function show(id){["home","study","play","sum"].forEach(x=>$(x).classList.toggle("hid",x!==id))}
+function home(){stop();$("best").textContent=localStorage.getItem("chorotecas_best")||0;show("home")}
+function sel(){const s=[...document.querySelectorAll("#topics input:checked")].map(i=>i.value);return s.length?s:["ori","vid","con"]}
+let fcT="ori",fcI=0,fcF=false;
+function showStudy(){$("stTabs").innerHTML=Object.keys(TN).map(k=>`<button class="btn ${k==fcT?'g':'gray'}" onclick="fcT='${k}';fcI=0;showStudy()">${TN[k]}</button>`).join("");$("stTitle").textContent="📖 "+TN[fcT];fcF=false;drawFc();show("study")}
+function drawFc(){const c=CARDS[fcT][fcI];$("fc").innerHTML=fcF?`<div>${c[1]}</div>`:`<b>${c[0]}</b>`}
+function flip(){fcF=!fcF;drawFc()}
+function moveFc(d){const n=CARDS[fcT].length;fcI=(fcI+d+n)%n;fcF=false;drawFc();$("stTitle").textContent=`📖 ${TN[fcT]} (${fcI+1}/${n})`}
+function begin(list,isChal){pool=list;score=0;streak=0;done=0;missed={};weight={};last=-1;chal=isChal;list.forEach(q=>weight[q.id]=1);
+$("sc").textContent=0;$("st").textContent=0;show("play");stop();
+if(chal){left=60;$("tm").classList.remove("hid");$("tm").textContent="⏱️ 60";timer=setInterval(()=>{left--;$("tm").textContent="⏱️ "+left;if(left<=0)finish()},1000)}else $("tm").classList.add("hid");next()}
+function startPractice(){const s=sel();begin(Q.filter(q=>s.includes(q.c)),false)}
+function startChallenge(){const s=sel();begin(Q.filter(q=>s.includes(q.c)),true)}
+function repeatErrors(){begin(Q.filter(q=>missed[q.id]),false)}
+function stop(){if(timer){clearInterval(timer);timer=null}}
+function pick(){let tot=0;const c=pool.filter(q=>q.id!==last||pool.length==1);c.forEach(q=>tot+=weight[q.id]);let r=Math.random()*tot;for(const q of c){r-=weight[q.id];if(r<=0)return q}return c[0]}
+function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function next(){cur=pick();last=cur.id;answered=false;$("tg").textContent=TN[cur.c]+(cur.t=="v"?" · ¿Verdadero o falso?":"");
+$("qt").textContent=cur.q;$("cnt").textContent="Preguntas: "+done;
+let opts,right;if(cur.t=="m"){opts=shuf(cur.o);right=cur.o[0]}else if(cur.t=="v"){opts=["Verdadero","Falso"];right=cur.a?"Verdadero":"Falso"}else{opts=["Mayas","Pipiles"];right=cur.a}
+cur.right=right;$("opts").innerHTML="";opts.forEach(o=>{const b=document.createElement("button");b.className="btn opt";b.textContent=o;b.onclick=()=>answer(b,o);$("opts").appendChild(b)});
+$("msg").textContent="";$("exp").classList.add("hid");$("nx").classList.add("hid")}
+const GOOD=["¡Muy bien! 🎉","¡Excelente! ⭐","¡Correcto! 👏","¡Eres un crack! 🚀","¡Súper! 💪"];
+function answer(b,o){if(answered)return;answered=true;done++;const ok=o===cur.right;
+[...$("opts").children].forEach(x=>{if(x.textContent===cur.right)x.classList.add("ok")});
+if(ok){score++;streak++;weight[cur.id]=Math.max(1,weight[cur.id]-1);$("msg").textContent=GOOD[Math.floor(Math.random()*GOOD.length)]+(streak>=3?` ¡Racha de ${streak}! 🔥`:"")}
+else{b.classList.add("bad");streak=0;missed[cur.id]=1;weight[cur.id]+=3;$("msg").textContent="¡Casi! Mira la respuesta correcta 💡"}
+$("sc").textContent=score;$("st").textContent=streak;$("cnt").textContent="Preguntas: "+done;
+if(chal){setTimeout(()=>{if(chal&&left>0)next()},ok?600:1600);return}
+$("exp").textContent="ℹ️ "+cur.e;$("exp").classList.remove("hid");$("nx").classList.remove("hid")}
+function finish(){stop();const wasChal=chal;chal=false;let t="¡Buen trabajo, amiguito! 🌟";
+if(wasChal){const best=+(localStorage.getItem("chorotecas_best")||0);if(score>best){localStorage.setItem("chorotecas_best",score);t="🏆 ¡Nuevo récord: "+score+"!"}}
+$("sumT").textContent=t;$("sumP").textContent=`Respondiste bien ${score} de ${done} preguntas.`;
+const m=Q.filter(q=>missed[q.id]);$("sumL").innerHTML=m.length?"<h3>Para repasar:</h3><ul>"+m.map(q=>`<li><b>${q.q}</b><br>✔️ ${q.t=="m"?q.o[0]:q.t=="v"?(q.a?"Verdadero":"Falso"):q.a} — ${q.e}</li>`).join("")+"</ul>":"<p>¡No tuviste errores! 🎉</p>";
+$("rep").classList.toggle("hid",!m.length);show("sum")}
+</script></body></html>
